@@ -46,6 +46,22 @@ def block_to_block_type(block):
 
   return block_type_paragraph
 
+def determine_heading_tag(block):
+  if block.startswith("# "): return "h1"
+  if block.startswith("## "): return "h2"
+  if block.startswith("### "): return "h3"
+  if block.startswith("#### "): return "h4"
+  if block.startswith("##### "): return "h5"
+  if block.startswith("###### "): return "h6"
+
+def block_to_leafnodes(block):
+  text_nodes = text_to_textnodes(block)
+  leaf_nodes = []
+  for text_node in text_nodes:
+    html_node = text_node_to_html_node(text_node)
+    leaf_nodes.append(html_node)
+  return leaf_nodes
+
 def markdown_to_html_node(markdown):
   blocks = markdown_to_block(markdown)
   block_nodes = []
@@ -53,19 +69,57 @@ def markdown_to_html_node(markdown):
     block_type = block_to_block_type(block)
     match block_type:
       case "paragraph":
-        text_nodes = text_to_textnodes(block)
-        leaf_nodes = []
-        for text_node in text_nodes:
-          html_node = text_node_to_html_node(text_node)
-          leaf_nodes.append(html_node)
+        leaf_nodes = block_to_leafnodes(block)
         node = ParentNode("p", leaf_nodes)
-        # full = ParentNode("div", [node])
-        # print(full.to_html())
         block_nodes.append(node)
       case "code":
-        print("HOT HERE")
+        cleaned_block = block.strip("```")
+        cleaned2_block = cleaned_block.strip("\n")
+        leaf_nodes = block_to_leafnodes(cleaned2_block)
+        node = ParentNode("code", leaf_nodes)
+        node2 = ParentNode("pre", [node])
+        block_nodes.append(node2)
       case "quote":
-        print("QUOTE")
+        cleaned_block = block.split("\n")
+        cleaned_block2 = []
+        for b in cleaned_block:
+          cleaned_block2.append(b.lstrip(">"))
+        cleaned_block3 = " ".join(cleaned_block2)
+        leaf_nodes = block_to_leafnodes(cleaned_block3)
+        node = ParentNode("blockquote", leaf_nodes)
+        block_nodes.append(node)
+      case "unordered list":
+        cleaned_block = block.split("\n")
+        cleaned_block2 = []
+        for b in cleaned_block:
+          if b.startswith("* "): cleaned_block2.append(b.lstrip("* "))
+          elif b.startswith("- "): cleaned_block2.append(b.lstrip("- "))
+          else: raise Exception("Assert: Improper unordered list not possible")
+        node = ParentNode("ul", [])
+        for clean_block in cleaned_block2:
+          leaf_nodes = block_to_leafnodes(clean_block)
+          for leaf in leaf_nodes:
+            leaf.tag = "li"
+            node.children.append(leaf)
+        block_nodes.append(node)
+      case "ordered list":
+        cleaned_block = block.split("\n")
+        cleaned_block2 = []
+        for i, b in enumerate(cleaned_block):
+          cleaned_block2.append(b.lstrip(f"{i+1}. "))
+        node = ParentNode("ol", [])
+        for clean_block in cleaned_block2:
+          leaf_nodes = block_to_leafnodes(clean_block)
+          for leaf in leaf_nodes:
+            leaf.tag = "li"
+            node.children.append(leaf)
+        block_nodes.append(node)
+      case "heading":
+        heading_tag = determine_heading_tag(block)
+        cleaned_block = block.lstrip("# ")
+        leaf_nodes = block_to_leafnodes(cleaned_block)
+        node = ParentNode(heading_tag, leaf_nodes)
+        block_nodes.append(node)
       case _:
         raise Exception("Failed to determine block type. (This is not possible)")
   wrapped = ParentNode("div", block_nodes)

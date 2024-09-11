@@ -54,6 +54,11 @@ class TestBlockMarkdownMethods(unittest.TestCase):
     block_type = block_to_block_type(block)
     self.assertEqual(block_type, block_type_paragraph)
 
+  def test_markdown_to_html_node_simplest_case(self):
+    markdown = "Hello world."
+    html_node = markdown_to_html_node(markdown)
+    self.assertEqual(html_node.to_html(), "<div><p>Hello world.</p></div>")
+
   def test_markdown_to_html_node_single_node(self):
     markdown = "Here is **some** text."
     html_node = markdown_to_html_node(markdown)
@@ -66,4 +71,30 @@ class TestBlockMarkdownMethods(unittest.TestCase):
 
   def test_markdown_to_html_node(self):
     markdown = "Here is some text and it is **bold** and\n\n```\ndef taco()\n```\n\n>cool I guess"
-    html = markdown_to_html_node(markdown)
+    html_node = markdown_to_html_node(markdown)
+    self.assertEqual(html_node.to_html(), "<div><p>Here is some text and it is <b>bold</b> and</p><pre><code>def taco()</code></pre><blockquote>cool I guess</blockquote></div>")
+
+  def test_markdown_to_html_quote(self):
+    markdown = ">I have a blockquote here.\n>It has multiple lines."
+    html_node = markdown_to_html_node(markdown)
+    self.assertEqual(html_node.to_html(), "<div><blockquote>I have a blockquote here. It has multiple lines.</blockquote></div>")
+
+  def test_markdown_to_html_unordered_list(self):
+    markdown = "* Item one.\n* Item two\n* Item three."
+    html_node = markdown_to_html_node(markdown)
+    self.assertEqual(html_node.to_html(), "<div><ul><li>Item one.</li><li>Item two</li><li>Item three.</li></ul></div>")
+
+  def test_markdown_to_html_ordered_list(self):
+    markdown = "1. First item.\n2. Second item.\n3. fourth itemmm"
+    html_node = markdown_to_html_node(markdown)
+    self.assertEqual(html_node.to_html(), "<div><ol><li>First item.</li><li>Second item.</li><li>fourth itemmm</li></ol></div>")
+
+  def test_markdown_to_html_heading(self):
+    markdown = "# Heading 1"
+    html_node = markdown_to_html_node(markdown)
+    self.assertEqual(html_node.to_html(), "<div><h1>Heading 1</h1></div>")
+
+  def test_markdown_to_html_heading6(self):
+    markdown = "###### Heading 6"
+    html_node = markdown_to_html_node(markdown)
+    self.assertEqual(html_node.to_html(), "<div><h6>Heading 6</h6></div>")
