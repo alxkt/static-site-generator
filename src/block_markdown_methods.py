@@ -1,3 +1,4 @@
+import re
 from inline_markdown_methods import text_to_textnodes
 from textnode import *
 from htmlnode import *
@@ -83,7 +84,7 @@ def markdown_to_html_node(markdown):
         cleaned_block = block.split("\n")
         cleaned_block2 = []
         for b in cleaned_block:
-          cleaned_block2.append(b.lstrip(">"))
+          cleaned_block2.append(b.lstrip("> "))
         cleaned_block3 = " ".join(cleaned_block2)
         leaf_nodes = block_to_leafnodes(cleaned_block3)
         node = ParentNode("blockquote", leaf_nodes)
@@ -98,9 +99,8 @@ def markdown_to_html_node(markdown):
         node = ParentNode("ul", [])
         for clean_block in cleaned_block2:
           leaf_nodes = block_to_leafnodes(clean_block)
-          for leaf in leaf_nodes:
-            leaf.tag = "li"
-            node.children.append(leaf)
+          pare = ParentNode("li", leaf_nodes)
+          node.children.append(pare)
         block_nodes.append(node)
       case "ordered list":
         cleaned_block = block.split("\n")
@@ -110,9 +110,8 @@ def markdown_to_html_node(markdown):
         node = ParentNode("ol", [])
         for clean_block in cleaned_block2:
           leaf_nodes = block_to_leafnodes(clean_block)
-          for leaf in leaf_nodes:
-            leaf.tag = "li"
-            node.children.append(leaf)
+          pare = ParentNode("li", leaf_nodes)
+          node.children.append(pare)
         block_nodes.append(node)
       case "heading":
         heading_tag = determine_heading_tag(block)
@@ -124,3 +123,8 @@ def markdown_to_html_node(markdown):
         raise Exception("Failed to determine block type. (This is not possible)")
   wrapped = ParentNode("div", block_nodes)
   return wrapped
+
+def extract_title(markdown):
+  x = re.search("^# .+", markdown)
+  title = x.group().lstrip("# ")
+  return title

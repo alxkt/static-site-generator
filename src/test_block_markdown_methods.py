@@ -79,10 +79,20 @@ class TestBlockMarkdownMethods(unittest.TestCase):
     html_node = markdown_to_html_node(markdown)
     self.assertEqual(html_node.to_html(), "<div><blockquote>I have a blockquote here. It has multiple lines.</blockquote></div>")
 
+  def test_markdown_to_html_quote_two(self):
+    markdown = "> All that is gold does not glitter"
+    html_node = markdown_to_html_node(markdown)
+    self.assertEqual(html_node.to_html(), "<div><blockquote>All that is gold does not glitter</blockquote></div>")
+
   def test_markdown_to_html_unordered_list(self):
     markdown = "* Item one.\n* Item two\n* Item three."
     html_node = markdown_to_html_node(markdown)
     self.assertEqual(html_node.to_html(), "<div><ul><li>Item one.</li><li>Item two</li><li>Item three.</li></ul></div>")
+
+  def test_markdown_to_html_unordered_list_two(self):
+    markdown = "* Disney *didn't ruin it*"
+    html_node = markdown_to_html_node(markdown)
+    self.assertEqual(html_node.to_html(), "<div><ul><li>Disney <i>didn't ruin it</i></li></ul></div>")
 
   def test_markdown_to_html_ordered_list(self):
     markdown = "1. First item.\n2. Second item.\n3. fourth itemmm"
@@ -98,3 +108,8 @@ class TestBlockMarkdownMethods(unittest.TestCase):
     markdown = "###### Heading 6"
     html_node = markdown_to_html_node(markdown)
     self.assertEqual(html_node.to_html(), "<div><h6>Heading 6</h6></div>")
+
+  def test_extract_title(self):
+    markdown = "# My Title\n\nSome text."
+    title = extract_title(markdown)
+    self.assertEqual(title, "My Title")
