@@ -56,6 +56,10 @@ class TestExtractMarkdownImages(unittest.TestCase):
     image_extracted = extract_markdown_images(text)
     self.assertEqual(image_extracted, [("alt text", "https://someurl.com/aeiou.jpg")])
 
+  def test_extract_single_image_no_text(self):
+    text = "![LOTR image artistmonkeys](/images/rivendell.png)"
+    image_extracted = extract_markdown_images(text)
+    self.assertEqual(image_extracted, [("LOTR image artistmonkeys", "/images/rivendell.png")])
   def test_extract_multiple_images(self):
     text = "Let's do several images ![First one](https://mysite.com/randome.png) and another ![second one](https://thatsite.org/what.bmp)"
     image_extracted = extract_markdown_images(text)
@@ -86,6 +90,13 @@ class TestSplitNodesImage(unittest.TestCase):
       TextNode("This is text with a single ", text_type_text),
       TextNode("img", text_type_image, "https://www.google.com/pny.jpg"),
       TextNode(" image.", text_type_text)
+    ])
+
+  def test_split_nodes_image_two(self):
+    node = TextNode("![LOTR image artistmonkeys](/images/rivendell.png)", text_type_text)
+    split_nodes = split_nodes_image([node])
+    self.assertEqual(split_nodes, [
+      TextNode("LOTR image artistmonkeys", text_type_image, "/images/rivendell.png")
     ])
 
 class TestSplitNodesLink(unittest.TestCase):

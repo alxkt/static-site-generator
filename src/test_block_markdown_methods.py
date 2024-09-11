@@ -64,6 +64,7 @@ class TestBlockMarkdownMethods(unittest.TestCase):
     html_node = markdown_to_html_node(markdown)
     self.assertEqual(html_node.to_html(), "<div><p>Here is <b>some</b> text.</p></div>")
 
+
   def test_markdown_to_html_node_multiple_nodes(self):
     markdown = "One paragraph.\n\nAnd a *second* paragraph."
     html_node = markdown_to_html_node(markdown)
