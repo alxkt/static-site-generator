@@ -1,6 +1,16 @@
+import os, shutil
+
 from textnode import *
+
+def delete_directory(dir):
+  if os.path.exists(dir):
+    shutil.rmtree(dir)
+
+def copy_directory(src, dst):
+  shutil.copytree(src, dst)
+
 def main():
-  my_node = TextNode("hehe", "bold", "www.wow.com")
-  print(my_node)
+  delete_directory("./public")
+  copy_directory("./static", "./public")
 
 main()
